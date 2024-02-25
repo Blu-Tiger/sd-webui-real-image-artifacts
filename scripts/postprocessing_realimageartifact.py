@@ -222,6 +222,7 @@ class ScriptPostprocessingRealImageArtifact(scripts_postprocessing.ScriptPostpro
                            LensMake, LensModel,  CameraOwnerName, BodySerialNumber, LensSerialNumber, FocalLength, FNumber, ExposureTime, ISOSpeedRatings])
 
         return {
+            "enable": enable,
             "noise_level": noise_level,
             "jpeg_artifact_level": jpeg_artifact_level,
             "enable_exif": enable_exif,
@@ -236,7 +237,7 @@ class ScriptPostprocessingRealImageArtifact(scripts_postprocessing.ScriptPostpro
             "ISOSpeedRatings": ISOSpeedRatings
         }
 
-    def process(self, pp: scripts_postprocessing.PostprocessedImage, noise_level, jpeg_artifact_level, enable_exif,  LensMake, LensModel,  CameraOwnerName, BodySerialNumber, LensSerialNumber, FocalLength, FNumber, ExposureTime, ISOSpeedRatings):
+    def process(self, pp: scripts_postprocessing.PostprocessedImage, enable, noise_level, jpeg_artifact_level, enable_exif,  LensMake, LensModel,  CameraOwnerName, BodySerialNumber, LensSerialNumber, FocalLength, FNumber, ExposureTime, ISOSpeedRatings):
         metadata_settings = {
             "LensMake": LensMake,
             "LensModel": LensModel,
@@ -248,5 +249,6 @@ class ScriptPostprocessingRealImageArtifact(scripts_postprocessing.ScriptPostpro
             "ExposureTime": ExposureTime,
             "ISOSpeedRatings": ISOSpeedRatings
         }
-        pp.image = worst_image(pp.image.convert(
-            "RGB"),  noise_level, jpeg_artifact_level, enable_exif, metadata_settings)
+        if enable:
+            pp.image = worst_image(pp.image.convert(
+                "RGB"),  noise_level, jpeg_artifact_level, enable_exif, metadata_settings)
