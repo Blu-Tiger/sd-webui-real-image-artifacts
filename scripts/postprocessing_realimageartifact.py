@@ -9,26 +9,6 @@ import numpy as np
 from modules import scripts_postprocessing, shared, ui_components
 import modules
 
-
-def search_extras_folder(root_dir):
-    for root, dirs, files in os.walk(root_dir):
-        if 'output' in dirs or 'outputs' in dirs:
-            output_folder = os.path.join(
-                root, 'output') if 'output' in dirs else os.path.join(root, 'outputs')
-            for root, dirs, files in os.walk(output_folder):
-                for dir_name in dirs:
-                    if 'extra' in dir_name:
-                        extra_folder_path = os.path.join(
-                            output_folder, dir_name)
-                        logging.debug("Real Image Artifact==> Found extra images folder at: %s",
-                                      extra_folder_path)
-                        return extra_folder_path
-            logging.error(
-                "Real Image Artifact==> extras or extras-images folder is missing")
-        else:
-            logging.error("Real Image Artifact==> Output folder is missing")
-
-
 lens_make_model_list = [
     ("Canon", "EF 24-70mm f/2.8L II USM"),
     ("Nikon", "AF-S NIKKOR 50mm f/1.8G"),
@@ -159,7 +139,8 @@ def worst_image(img, noise_level, jpeg_artifact_level, enable_exif, metadata_set
 
         try:
             if enable_exif:
-                folder_path = search_extras_folder(modules.scripts.basedir())
+                folder_path = os.path.join(
+                    modules.scripts.basedir(), 'outputs', 'extras')
 
                 file_names = [f for f in os.listdir(
                     folder_path) if os.path.isfile(os.path.join(folder_path, f))]
@@ -192,34 +173,37 @@ class ScriptPostprocessingRealImageArtifact(scripts_postprocessing.ScriptPostpro
     order = 5000
 
     def ui(self):
-        with ui_components.InputAccordion(False, label="Real Image Artifact") as enable:
-            with ui_components.InputAccordion(False, label="Exif Generator") as enable_exif:
-                rad_metadata = ui_components.ToolButton(value='🔄️')
-                LensMake = gr.Textbox(label='Camera lens maker',
-                                      value=def_metadata_settings["LensMake"])
-                LensModel = gr.Textbox(
-                    label='Camera lens model', value=def_metadata_settings["LensModel"])
-                CameraOwnerName = gr.Textbox(label='Camera owner name',
-                                             value=def_metadata_settings["CameraOwnerName"])
-                BodySerialNumber = gr.Textbox(label='Camera body serial number',
-                                              value=def_metadata_settings["BodySerialNumber"])
-                LensSerialNumber = gr.Textbox(label='Camera lens serial number',
-                                              value=def_metadata_settings["LensSerialNumber"])
-                FocalLength = gr.Textbox(label='Focal length',
-                                         value=def_metadata_settings["FocalLength"])
-                FNumber = gr.Textbox(label='FNumber',
-                                     value=def_metadata_settings["FNumber"])
-                ExposureTime = gr.Textbox(label='Exposure time',
-                                          value=def_metadata_settings["ExposureTime"])
-                ISOSpeedRatings = gr.Textbox(label='ISO speed ratings',
-                                             value=def_metadata_settings["ISOSpeedRatings"])
-            with gr.Group():
-                noise_level = gr.Slider(minimum=0, maximum=1, label='Noise level', step=0.01, info="Higer for worse quality",
-                                        value=0.03)
-                jpeg_artifact_level = gr.Slider(minimum=0, maximum=100, label='Jpeg quality', step=1, info="Lower for worse quality",
-                                                value=50)
+        enable = gr.Checkbox(
+            container=False, label="Enable")
+        with gr.Accordion(label="Exif Generator"):
+            enable_exif = gr.Checkbox(
+                container=False, label="Enable Exif Generator")
+            rad_metadata = ui_components.ToolButton(value='🔄️')
+            LensMake = gr.Textbox(label='Camera lens maker',
+                                  value=def_metadata_settings["LensMake"])
+            LensModel = gr.Textbox(
+                label='Camera lens model', value=def_metadata_settings["LensModel"])
+            CameraOwnerName = gr.Textbox(label='Camera owner name',
+                                         value=def_metadata_settings["CameraOwnerName"])
+            BodySerialNumber = gr.Textbox(label='Camera body serial number',
+                                          value=def_metadata_settings["BodySerialNumber"])
+            LensSerialNumber = gr.Textbox(label='Camera lens serial number',
+                                          value=def_metadata_settings["LensSerialNumber"])
+            FocalLength = gr.Textbox(label='Focal length',
+                                     value=def_metadata_settings["FocalLength"])
+            FNumber = gr.Textbox(label='FNumber',
+                                 value=def_metadata_settings["FNumber"])
+            ExposureTime = gr.Textbox(label='Exposure time',
+                                      value=def_metadata_settings["ExposureTime"])
+            ISOSpeedRatings = gr.Textbox(label='ISO speed ratings',
+                                         value=def_metadata_settings["ISOSpeedRatings"])
+        with gr.Row():
+            noise_level = gr.Slider(minimum=0, maximum=1, label='Noise level', step=0.01, info="Higer for worse quality",
+                                    value=0.03)
+            jpeg_artifact_level = gr.Slider(minimum=0, maximum=100, label='Jpeg quality', step=1, info="Lower for worse quality",
+                                            value=50)
         rad_metadata.click(fn=randomize_metadata, outputs=[
-                           LensMake, LensModel,  CameraOwnerName, BodySerialNumber, LensSerialNumber, FocalLength, FNumber, ExposureTime, ISOSpeedRatings])
+            LensMake, LensModel,  CameraOwnerName, BodySerialNumber, LensSerialNumber, FocalLength, FNumber, ExposureTime, ISOSpeedRatings])
 
         return {
             "enable": enable,
