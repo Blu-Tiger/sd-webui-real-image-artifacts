@@ -6,6 +6,7 @@ A post processor to add noise, jpeg arifacts and opional exif to an image to mak
 
 ## Example
 
-| Before                         | After                             |
-| ------------------------------ | --------------------------------- |
-| ![Before](examples/before.png) | ![After](examples/after_exif.jpg) |
+| Before                           | After                             |
+| -------------------------------- | --------------------------------- |
+| ![Before](examples/before.png)   | ![After](examples/after_exif.jpg) |
+| ![Before](examples/before_2.png) | ![After](examples/after_2.png)    |
